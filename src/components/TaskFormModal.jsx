@@ -1,72 +1,60 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
-import { useDispatch } from 'react-redux';
-import { upsertTask } from '../store/taskSlice';
 import { X } from 'lucide-react';
 
-const schema = yup.object({
-  title: yup.string().required('Title is required').max(15, 'Max 15 characters'),
-  assignee: yup.string().required('Assignee is required').max(20, 'Max 20 characters').matches(/^[a-zA-Z0-9 ]*$/, 'No special characters allowed'),
-  deadline: yup.string().optional(),
-  status: yup.string().oneOf(['todo', 'running', 'completed']).required()
-}).required();
-
-export default function TaskFormModal({ isOpen, onClose, initialData }) {
-  const dispatch = useDispatch();
-  const { register, handleSubmit, formState: { errors }, reset } = useForm({
-    resolver: yupResolver(schema),
-    values: initialData || { status: 'todo' }
+export default function TaskFormModal({ isOpen, onClose, onSubmit, defaultStatus }) {
+  const { register, handleSubmit, reset } = useForm({
+    defaultValues: { status: defaultStatus }
   });
 
-  if (!isOpen) return null;
-
-  const onSubmit = (data) => {
-    // Logic for Deadline: Use last date of current month if not provided
-    if (!data.deadline) {
-      const now = new Date();
-      data.deadline = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
-    }
-    dispatch(upsertTask({ ...data, id: initialData?.id }));
-    onClose();
+  const onFormSubmit = (data) => {
+    onSubmit(data);
     reset();
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md shadow-2xl border dark:border-slate-800">
-        <div className="flex justify-between items-center p-6 border-b dark:border-slate-800">
-          <h2 className="text-xl font-bold dark:text-white">{initialData?.id ? 'Edit Task' : 'New Task'}</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600"><X size={20}/></button>
+    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+      <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl p-8 border border-slate-200">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-black text-slate-900 uppercase">Create Task</h2>
+          <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+            <X size={20} className="text-slate-500" />
+          </button>
         </div>
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4">
+
+        <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-5">
           <div>
-            <label className="block text-sm font-bold mb-1 dark:text-slate-300">Task Title</label>
-            <input {...register('title')} className="w-full p-2 rounded-lg border dark:bg-slate-800 dark:border-slate-700" />
-            <p className="text-red-500 text-xs mt-1">{errors.title?.message}</p>
+            <label className="block text-xs font-black uppercase text-slate-400 mb-2">Task Title</label>
+            <input 
+              {...register("title", { required: true, maxLength: 15 })}
+              placeholder="e.g. Start PR Campaign"
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all font-medium"
+            />
           </div>
+
           <div>
-            <label className="block text-sm font-bold mb-1 dark:text-slate-300">Assignee</label>
-            <input {...register('assignee')} className="w-full p-2 rounded-lg border dark:bg-slate-800 dark:border-slate-700" />
-            <p className="text-red-500 text-xs mt-1">{errors.assignee?.message}</p>
+            <label className="block text-xs font-black uppercase text-slate-400 mb-2">Assignee</label>
+            <input 
+              {...register("assignee", { required: true })}
+              placeholder="e.g. Abhishek"
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 outline-none font-medium"
+            />
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-bold mb-1 dark:text-slate-300">Deadline</label>
-              <input type="date" {...register('deadline')} className="w-full p-2 rounded-lg border dark:bg-slate-800 dark:border-slate-700" />
-            </div>
-            <div>
-              <label className="block text-sm font-bold mb-1 dark:text-slate-300">Status</label>
-              <select {...register('status')} className="w-full p-2 rounded-lg border dark:bg-slate-800 dark:border-slate-700">
-                <option value="todo">To Do</option>
-                <option value="running">Doing</option>
-                <option value="completed">Done</option>
-              </select>
-            </div>
+
+          <div>
+            <label className="block text-xs font-black uppercase text-slate-400 mb-2">Due Date</label>
+            <input 
+              type="date"
+              {...register("deadline", { required: true })}
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 outline-none font-medium"
+            />
           </div>
-          <button type="submit" className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition">
-            Save Task
+
+          <button 
+            type="submit"
+            className="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-slate-800 transition-all active:scale-[0.98] mt-4"
+          >
+            Create Task Entry
           </button>
         </form>
       </div>

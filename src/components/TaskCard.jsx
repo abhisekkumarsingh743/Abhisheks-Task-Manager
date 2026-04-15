@@ -1,34 +1,34 @@
-import { Calendar, User, ChevronRight } from 'lucide-react';
+import { Calendar, User, Hash } from 'lucide-react';
 
 export default function TaskCard({ task }) {
   return (
-    <div className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-xl hover:shadow-blue-500/10 dark:hover:shadow-blue-900/20 hover:-translate-y-1 transition-all group cursor-pointer">
-      <div className="flex justify-between items-start mb-3">
-        <h3 className="text-slate-800 dark:text-slate-100 font-bold leading-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-          {task.title}
-        </h3>
-        <ChevronRight size={16} className="text-slate-300 dark:text-slate-600 group-hover:text-blue-500" />
+    <div className="bg-white p-3.5 rounded-xl border border-slate-200 task-card-shadow hover:border-blue-400 transition-all cursor-pointer group">
+      <h3 className="font-bold text-xs text-slate-800 mb-2 group-hover:text-blue-600 transition-colors leading-tight">
+        {task.title}
+      </h3>
+      
+      <div className="space-y-1.5">
+        <div className="flex items-center gap-2 text-[9px] text-slate-500">
+          <User size={11} className="text-slate-400" /> 
+          <span className="font-medium text-slate-400 uppercase">Assignee:</span>
+          <span className="text-slate-700 font-bold">{task.assignee}</span>
+        </div>
+        <div className="flex items-center gap-2 text-[9px] text-slate-500">
+          <Calendar size={11} className="text-slate-400" /> 
+          <span className="font-medium text-slate-400 uppercase">Due Date:</span>
+          <span className="text-slate-700 font-bold">{task.deadline}</span>
+        </div>
       </div>
       
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
-          <User size={14} className="text-blue-500/70" />
-          <span className="text-xs font-medium">{task.assignee}</span>
+      <div className="mt-3 pt-2.5 border-t border-slate-50 flex justify-between items-center">
+        <div className="flex items-center gap-1 text-[8px] font-mono text-slate-400 uppercase">
+          <Hash size={8} /> {task.id?.slice(-4)}
         </div>
-        <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
-          <Calendar size={14} className="text-emerald-500/70" />
-          <span className="text-xs font-medium">{task.deadline}</span>
-        </div>
-      </div>
-      
-      <div className="mt-4 pt-3 border-t border-slate-50 dark:border-slate-700/50 flex justify-end">
-        <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded ${
-          task.status === 'completed' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' :
-          task.status === 'running' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' :
-          'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400'
+        <div className={`px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${
+          task.status === 'completed' ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600'
         }`}>
-          {task.status === 'running' ? 'Active' : task.status}
-        </span>
+          {task.status}
+        </div>
       </div>
     </div>
   );
