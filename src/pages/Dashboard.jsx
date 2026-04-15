@@ -22,15 +22,15 @@ export default function Dashboard() {
     setIsModalOpen(true);
   };
 
-  const handleCreateTask = (data) => {
-    const newTask = {
-      ...data,
-      id: Date.now().toString(),
-      status: initialStatus
-    };
-    dispatch(addTask(newTask));
-    setIsModalOpen(false);
+const handleCreateTask = (data) => {
+  const newTask = {
+    ...data,
+    id: Date.now().toString(),
+    status: data.status || initialStatus 
   };
+  dispatch(addTask(newTask));
+  setIsModalOpen(false);
+};
 
   return (
     <div className="p-6 max-w-7xl mx-auto">

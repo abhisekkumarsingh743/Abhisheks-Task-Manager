@@ -9,7 +9,7 @@ export default function Stats() {
     { name: 'To Do', value: tasks.filter(t => t.status === 'todo').length },
     { name: 'Doing', value: tasks.filter(t => t.status === 'running').length },
     { name: 'Done', value: tasks.filter(t => t.status === 'completed').length }
-  ].filter(d => d.value > 0); // Only show statuses that have tasks
+  ].filter(d => d.value > 0);
 
   const COLORS = ['#94a3b8', '#3b82f6', '#10b981'];
 

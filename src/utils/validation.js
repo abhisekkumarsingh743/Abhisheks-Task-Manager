@@ -11,7 +11,7 @@ export const taskSchema = yup.object().shape({
   deadline: yup.date()
     .min(new Date(new Date().setHours(0,0,0,0)), "No past dates allowed")
     .nullable()
-    .default(() => { // If not provided, use last date of current month
+    .default(() => {
       const date = new Date();
       return new Date(date.getFullYear(), date.getMonth() + 1, 0);
     }),
