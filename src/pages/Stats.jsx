@@ -7,44 +7,54 @@ export default function Stats() {
   
   const data = [
     { name: 'To Do', value: tasks.filter(t => t.status === 'todo').length },
-    { name: 'In Progress', value: tasks.filter(t => t.status === 'running').length },
-    { name: 'Completed', value: tasks.filter(t => t.status === 'completed').length }
-  ];
+    { name: 'Doing', value: tasks.filter(t => t.status === 'running').length },
+    { name: 'Done', value: tasks.filter(t => t.status === 'completed').length }
+  ].filter(d => d.value > 0); // Only show statuses that have tasks
 
   const COLORS = ['#94a3b8', '#3b82f6', '#10b981'];
 
-  return (
-    <div className="p-8 max-w-5xl mx-auto flex flex-col items-center justify-center min-h-[80vh]">
-      <div className="bg-white dark:bg-slate-900 p-10 rounded-[3rem] shadow-xl border border-slate-100 dark:border-slate-800 w-full">
-        <div className="text-center mb-10">
-          <h1 className="text-3xl font-black text-slate-800 dark:text-white">Task Analytics</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-2">Current status distribution of all project tasks </p>
-        </div>
+  // Logic to show numerical values on the Pie slices
+  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, value }) => {
+    const RADIAN = Math.PI / 180;
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
-        <div className="h-[450px] w-full">
+    return (
+      <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" className="font-bold text-sm">
+        {value}
+      </text>
+    );
+  };
+
+  return (
+    <div className="p-8 max-w-4xl mx-auto flex flex-col items-center">
+      <div className="w-full bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 p-8">
+        <h1 className="text-2xl font-bold text-center mb-8 dark:text-white">Task Distribution</h1>
+        
+        <div className="h-[400px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
                 data={data}
                 cx="50%"
                 cy="50%"
-                innerRadius={100}
-                outerRadius={160}
-                paddingAngle={10}
+                labelLine={false}
+                label={renderCustomizedLabel}
+                outerRadius={150}
+                fill="#8884d8"
                 dataKey="value"
-                stroke="none"
               >
                 {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} cornerRadius={10} />
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip 
-                contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: '15px' }} 
-              />
-              <Legend verticalAlign="bottom" height={36} iconType="circle" />
+              <Tooltip />
+              <Legend />
             </PieChart>
           </ResponsiveContainer>
         </div>
+        <p className="mt-4 text-center text-slate-500 text-sm">Numerical values represent the count of tasks per status.</p>
       </div>
     </div>
   );
