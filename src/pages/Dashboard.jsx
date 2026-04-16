@@ -16,39 +16,36 @@ export default function Dashboard() {
   const tasks = useSelector(state => state.tasks.tasks);
   const dispatch = useDispatch();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [initialStatus, setInitialStatus] = useState('todo');
+  const [activeCol, setActiveCol] = useState('todo');
 
   const onDragEnd = (result) => {
-    const { destination, source, draggableId } = result;
-    if (!destination || (destination.droppableId === source.droppableId && destination.index === source.index)) {
-      return;
-    }
-    dispatch(updateTaskStatus({
-      taskId: draggableId,
-      newStatus: destination.droppableId
-    }));
+    const { destination, draggableId } = result;
+    if (!destination) return;
+    dispatch(updateTaskStatus({ taskId: draggableId, newStatus: destination.droppableId }));
+  };
+
+  const openModal = (colId) => {
+    setActiveCol(colId);
+    setIsModalOpen(true);
   };
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex justify-between items-center mb-10">
         <div className="flex items-center gap-3">
           <ListTodo size={28} className="text-blue-600" />
-          <div>
-            <h1 className="text-xl font-black text-slate-900 uppercase tracking-tight">Task Dashboard</h1>
-            <p className="text-slate-400 text-xs font-medium">Monitoring workflow and productivity</p>
-          </div>
+          <h1 className="text-xl font-black text-slate-900 uppercase tracking-tight">Task Dashboard</h1>
         </div>
-        <button onClick={() => { setInitialStatus('todo'); setIsModalOpen(true); }} className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 shadow-lg shadow-blue-500/20">
+        <button onClick={() => openModal('todo')} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 shadow-lg shadow-blue-500/20 transition-all active:scale-95">
           <PlusCircle size={16} /> Add New Task
         </button>
       </div>
 
       <DragDropContext onDragEnd={onDragEnd}>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {COLUMNS.map(col => (
-            <div key={col.id} className="flex flex-col gap-3">
-              <div className="flex items-center justify-between px-1">
+            <div key={col.id} className="flex flex-col gap-4">
+              <div className="flex justify-between items-center px-2">
                 <div className="flex items-center gap-2">
                   <span className={`w-2 h-2 rounded-full ${col.color}`} />
                   <h2 className="font-bold uppercase tracking-widest text-[10px] text-slate-500">{col.title}</h2>
@@ -63,17 +60,12 @@ export default function Dashboard() {
                   <div
                     {...provided.droppableProps}
                     ref={provided.innerRef}
-                    className={`p-2.5 rounded-2xl border border-slate-200/50 flex flex-col gap-2.5 h-auto transition-colors ${snapshot.isDraggingOver ? 'bg-blue-50/50 border-blue-200' : 'bg-slate-200/30'}`}
+                    className={`p-3 rounded-2xl border flex flex-col gap-3 min-h-[150px] transition-all ${snapshot.isDraggingOver ? 'bg-blue-50/50 border-blue-200 shadow-inner' : 'bg-slate-100/50 border-transparent'}`}
                   >
                     {tasks.filter(t => t.status === col.id).map((task, index) => (
                       <Draggable key={task.id} draggableId={task.id} index={index}>
-                        {(provided, snapshot) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className={snapshot.isDragging ? 'shadow-2xl' : ''}
-                          >
+                        {(p) => (
+                          <div ref={p.innerRef} {...p.draggableProps} {...p.dragHandleProps}>
                             <TaskCard task={task} />
                           </div>
                         )}
@@ -81,10 +73,10 @@ export default function Dashboard() {
                     ))}
                     {provided.placeholder}
                     <button 
-                      onClick={() => { setInitialStatus(col.id); setIsModalOpen(true); }}
-                      className="w-full py-2.5 border-2 border-dashed border-slate-300 rounded-xl text-slate-400 font-bold text-[10px] flex items-center justify-center gap-2 hover:border-blue-400 hover:text-blue-500 transition-all bg-white/50"
+                      onClick={() => openModal(col.id)}
+                      className="w-full py-4 border-2 border-dashed border-slate-300 rounded-xl text-slate-400 font-bold text-[11px] flex items-center justify-center gap-2 hover:border-blue-400 hover:text-blue-500 transition-all bg-white/50 group"
                     >
-                      <Plus size={12} /> Add Card
+                      <Plus size={14} className="group-hover:rotate-90 transition-transform" /> Add Card
                     </button>
                   </div>
                 )}
@@ -99,10 +91,10 @@ export default function Dashboard() {
           isOpen={isModalOpen} 
           onClose={() => setIsModalOpen(false)} 
           onSubmit={(data) => {
-            dispatch(addTask({ ...data, id: Date.now().toString(), status: data.status || initialStatus }));
+            dispatch(addTask({ ...data, id: Date.now().toString() }));
             setIsModalOpen(false);
           }}
-          defaultStatus={initialStatus}
+          defaultStatus={activeCol}
         />
       )}
     </div>
